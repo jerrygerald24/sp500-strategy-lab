@@ -3,234 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S&P 500 Strategy Lab (POC)</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Monday Bottom 5 Picks</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 24px; background: #f8fafc; color: #0f172a; }
-        h1 { margin: 0 0 4px 0; font-size: 24px; }
-        .sub { color: #64748b; font-size: 14px; margin-bottom: 20px; }
-        .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
-        label { display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; }
-        select, input { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-        button { padding: 9px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 14px; }
-        .btn-add { background: #0284c7; color: #fff; }
-        .btn-add:hover { background: #0369a1; }
-        .btn-clear { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 20px; background: #f8fafc; color: #0f172a; }
+        .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; max-width: 720px; margin: 0 auto; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+        h1 { margin: 0 0 6px 0; font-size: 22px; }
+        .sub { color: #64748b; font-size: 13px; margin-bottom: 18px; }
+        .badge { background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 14px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
         th { background: #f8fafc; color: #475569; font-weight: 600; }
-        .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
     </style>
 </head>
 <body>
-    <h1>S&P 500 Strategy Lab (10-Year Backtest POC)</h1>
-    <div class="sub">2013-09-29 to 2023-09-29 | Python-powered simulation engine</div>
-
-    <div class="panel">
-        <div class="controls">
-            <div>
-                <label>Invest Frequency</label>
-                <select id="cadence" onchange="autoPopulateAmount()">
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                </select>
-            </div>
-            <div>
-                <label>Selection Rule</label>
-                <select id="direction">
-                    <option value="top">Top Gainers (Momentum)</option>
-                    <option value="bottom">Top Losers (Dip-Buying)</option>
-                    <option value="benchmark">S&P 500 Equal-Weight Benchmark</option>
-                </select>
-            </div>
-            <div>
-                <label>Basket Size (Top N)</label>
-                <select id="top_n">
-                    <option value="1">Top 1 ($100)</option>
-                    <option value="5">Top 5 ($20 each)</option>
-                    <option value="10">Top 10 ($10 each)</option>
-                </select>
-            </div>
-            <div>
-                <label>Ranking Lookback</label>
-                <select id="lookback" onchange="autoPopulateAmount()">
-                    <option value="1">1 Trading Day</option>
-                    <option value="5">5 Trading Days (1 Wk)</option>
-                    <option value="20">20 Trading Days (1 Mo)</option>
-                </select>
-            </div>
-            <div>
-                <label>Amount ($)</label>
-                <input type="number" id="amount" value="100" min="10" step="10">
-            </div>
-            <div>
-                <button class="btn-add" onclick="addStrategy()">+ Plot Strategy</button>
-            </div>
-            <div>
-                <button class="btn-clear" onclick="clearAll()">Clear All</button>
-            </div>
-            <div>
-                <button class="btn-clear" onclick="downloadPlot()">Download Plot (PNG)</button>
-            </div>
-            <div>
-                <button class="btn-clear" onclick="downloadCSV()">Download Summary (CSV)</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="panel">
-        <canvas id="growthChart" height="100"></canvas>
-    </div>
-
-    <div class="panel">
-        <h3>Strategy Comparison</h3>
+    <div class="card">
+        <div class="badge">Auto-Updated Mondays @ 6:00 AM</div>
+        <h1>Monday Bottom 5 — Weekly Picks</h1>
+        <div class="sub">Based on 1-day drop (2026-11-12 → 2026-11-13) | Budget: $482.00 ($96.40/stock)</div>
         <table>
             <thead>
-                <tr>
-                    <th>Strategy</th>
-                    <th>Total Invested</th>
-                    <th>Final Value</th>
-                    <th>Net Profit</th>
-                    <th>ROI %</th>
-                    <th>CAGR %</th>
-                    <th>Max Drawdown</th>
-                </tr>
+                <tr><th>Ticker</th><th>Last Price</th><th>1-Day Drop</th><th>Invest ($)</th><th>Est. Shares</th></tr>
             </thead>
-            <tbody id="summary-body"></tbody>
+            <tbody><tr>
+            <td><strong>VUZI</strong></td>
+            <td>$1.35</td>
+            <td style="color:#e11d48;font-weight:700;">-26.63%</td>
+            <td><strong>$96.40</strong></td>
+            <td>71.4074</td>
+        </tr><tr>
+            <td><strong>CSCO</strong></td>
+            <td>$95.64</td>
+            <td style="color:#e11d48;font-weight:700;">-6.24%</td>
+            <td><strong>$96.40</strong></td>
+            <td>1.0079</td>
+        </tr><tr>
+            <td><strong>WDC</strong></td>
+            <td>$295.65</td>
+            <td style="color:#e11d48;font-weight:700;">-5.0%</td>
+            <td><strong>$96.40</strong></td>
+            <td>0.3261</td>
+        </tr><tr>
+            <td><strong>BE</strong></td>
+            <td>$191.99</td>
+            <td style="color:#e11d48;font-weight:700;">-4.92%</td>
+            <td><strong>$96.40</strong></td>
+            <td>0.5021</td>
+        </tr><tr>
+            <td><strong>OCC</strong></td>
+            <td>$10.47</td>
+            <td style="color:#e11d48;font-weight:700;">-4.9%</td>
+            <td><strong>$96.40</strong></td>
+            <td>9.2073</td>
+        </tr></tbody>
         </table>
     </div>
-
-    <script>
-        const COLORS = ['#0284c7', '#e11d48', '#16a34a', '#9333ea', '#ea580c', '#0f172a'];
-        let chart = null;
-        let datasets = [];
-        let rows = [];
-        let commonDates = [];
-
-        async function runSim(cfg, label, color, isDashed=false) {
-            const res = await fetch('/api/simulate', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(cfg)
-            });
-            const data = await res.json();
-            if (commonDates.length === 0) {
-                commonDates = data.dates;
-                datasets.push({
-                    label: 'Cash Contributed ($)',
-                    data: data.contributed,
-                    borderColor: '#94a3b8',
-                    borderDash: [5, 5],
-                    pointRadius: 0,
-                    borderWidth: 2
-                });
-            }
-            datasets.push({
-                label: label,
-                data: data.equity,
-                borderColor: color,
-                borderDash: isDashed ? [3,3] : [],
-                pointRadius: 0,
-                borderWidth: 2.5,
-                tension: 0.1
-            });
-            rows.push({ label, color, m: data.metrics });
-            render();
-        }
-
-        function autoPopulateAmount() {
-            const cadence = document.getElementById('cadence').value;
-            const amountEl = document.getElementById('amount');
-            if (cadence === 'daily') amountEl.value = 100;
-            else if (cadence === 'weekly') amountEl.value = 482;
-            else if (cadence === 'monthly') amountEl.value = 2094;
-        }
-
-        function addStrategy() {
-            const cfg = {
-                cadence: document.getElementById('cadence').value,
-                direction: document.getElementById('direction').value,
-                top_n: parseInt(document.getElementById('top_n').value),
-                lookback: parseInt(document.getElementById('lookback').value),
-                amount: parseFloat(document.getElementById('amount').value) || 100
-            };
-            const dirLabel = cfg.direction === 'benchmark' ? 'S&P 500 Benchmark' : `${cfg.direction === 'top' ? 'Top' : 'Bottom'} ${cfg.top_n} (${cfg.lookback}d)`;
-            const label = `${cfg.cadence.toUpperCase()} $${cfg.amount} | ${dirLabel}`;
-            const color = COLORS[rows.length % COLORS.length];
-            runSim(cfg, label, color);
-        }
-
-        function clearAll() {
-            datasets = [];
-            rows = [];
-            commonDates = [];
-            render();
-        }
-
-        function downloadPlot() {
-            const canvas = document.getElementById('growthChart');
-            const link = document.createElement('a');
-            link.download = 'sp500_strategy_plot.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-
-        function downloadCSV() {
-            const header = ['Strategy', 'Total Invested', 'Final Value', 'Net Profit', 'ROI %', 'CAGR %', 'Max Drawdown %'];
-            const csvRows = [header.join(',')];
-            rows.forEach(r => {
-                const m = r.m;
-                csvRows.push([
-                    `"${r.label}"`,
-                    m.total_contributed,
-                    m.final_value,
-                    m.profit,
-                    m.roi_pct,
-                    m.cagr_pct,
-                    m.max_drawdown_pct
-                ].join(','));
-            });
-            const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
-            const link = document.createElement('a');
-            link.download = 'sp500_strategy_summary.csv';
-            link.href = URL.createObjectURL(blob);
-            link.click();
-        }
-
-        function render() {
-            if (chart) chart.destroy();
-            chart = new Chart(document.getElementById('growthChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: commonDates, datasets: datasets },
-                options: {
-                    responsive: true,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: { y: { ticks: { callback: v => '$' + v.toLocaleString() } } }
-                }
-            });
-
-            const tbody = document.getElementById('summary-body');
-            tbody.innerHTML = rows.map(r => `
-                <tr>
-                    <td><span class="dot" style="background:${r.color}"></span><strong>${r.label}</strong></td>
-                    <td>$${r.m.total_contributed.toLocaleString()}</td>
-                    <td><strong>$${r.m.final_value.toLocaleString()}</strong></td>
-                    <td style="color:${r.m.profit >= 0 ? '#16a34a' : '#e11d48'}">$${r.m.profit.toLocaleString()}</td>
-                    <td>${r.m.roi_pct}%</td>
-                    <td>${r.m.cagr_pct}%</td>
-                    <td style="color:#e11d48">${r.m.max_drawdown_pct}%</td>
-                </tr>
-            `).join('');
-        }
-
-        // Load initial comparison on startup: Top 1 Gainer vs Top 1 Loser vs Benchmark
-        window.onload = async () => {
-            await runSim({cadence:'daily', direction:'top', top_n:1, lookback:1, amount:100}, 'DAILY $100 | Top 1 Gainer (1d)', COLORS[0]);
-            await runSim({cadence:'daily', direction:'bottom', top_n:1, lookback:1, amount:100}, 'DAILY $100 | Top 1 Loser (1d)', COLORS[1]);
-            await runSim({cadence:'daily', direction:'benchmark', top_n:1, lookback:1, amount:100}, 'DAILY $100 | S&P 500 Benchmark', COLORS[2]);
-        };
-    </script>
 </body>
 </html>
